@@ -15,8 +15,13 @@ mongo_uri = os.environ.get("MONGO_URI")
 client = MongoClient(
     mongo_uri,
     tls=True,
-    tlsCAFile=certifi.where()
+    tlsCAFile=certifi.where(),
+    serverSelectionTimeoutMS=5000
 )
+
+db = client["bookmatcher_db"]
+users = db["users"]
+books = db["books"]
 
 # Make datetime available in templates
 @app.context_processor
