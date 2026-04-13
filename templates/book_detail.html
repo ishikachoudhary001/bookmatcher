@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="book-detail-container">
+  <div class="book-hero">
+    <div class="book-cover">
+      <img src="{{ book['cover_url'] }}" alt="{{ book['title'] }}">
+    </div>
+    <div class="book-info">
+      <h1 class="book-title">{{ book['title'] }}</h1>
+      <p class="book-author">by {{ book.get('author', 'Unknown Author') }}</p>
+      <div class="book-tags">
+        {% if book.get('genre') %}
+          <span class="tag">{{ book['genre'] }}</span>
+        {% endif %}
+        {% if book.get('mood') %}
+          <span class="tag mood">{{ book['mood'] }}</span>
+        {% endif %}
+      </div>
+      <div class="rating-section">
+        <span>⭐ {{ book.get('rating', '4.5') }}</span>
+        <button class="favorite-btn">♡ Add to Favorites</button>
+      </div>
+
+      {% if book.get('pdf_url') %}
+      <a href="{{ book['pdf_url'] }}" target="_blank" class="pdf-btn">📖 Read / Download PDF</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="book-summary">
+    <h2>30-Second Hook</h2>
+    <p class="teaser">
+      {{ book.get('short_description', 'A captivating journey awaits you. Discover the emotional depth, excitement, and charm of this book.') }}
+    </p>
+    <button class="read-more" onclick="toggleDescription()">Read More</button>
+    <p id="long-description" class="hidden">
+      {{ book.get('description', 'Full description coming soon...') }}
+    </p>
+  </div>
+
+  <div class="feedback-section">
+    <h3>Share your thoughts</h3>
+    <form id="feedbackForm" method="POST" action="/feedback/{{ book['_id'] }}">
+      <textarea name="feedback" placeholder="Write your review..." required></textarea>
+      <select name="rating" required>
+        <option value="">Rate this book</option>
+        <option value="5">★★★★★ - Loved it</option>
+        <option value="4">★★★★☆ - Great</option>
+        <option value="3">★★★☆☆ - Good</option>
+        <option value="2">★★☆☆☆ - Meh</option>
+        <option value="1">★☆☆☆☆ - Didn't like it</option>
+      </select>
+      <button type="submit" class="submit-btn">Submit Feedback</button>
+    </form>
+  </div>
+</div>
+
+<script>
+function toggleDescription() {
+  const longDesc = document.getElementById('long-description');
+  longDesc.classList.toggle('hidden');
+}
+</script>
+
+{% endblock %}
+
+
+
+

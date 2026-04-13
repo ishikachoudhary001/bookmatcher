@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title or "Book Matcher" }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+  {% if session.get('user') %}
+  <nav class="navbar">
+    <div class="logo" onclick="window.location.href='{{ url_for('dashboard') }}'">📚 BookMatcher</div>
+    <div class="nav-links">
+      <a href="{{ url_for('dashboard') }}">Home</a>
+      <a href="{{ url_for('search_books') }}">Search</a>
+      <li><a href="{{ url_for('matcher') }}">Vibe Matcher</a></li>
+
+      <a href="{{ url_for('logout') }}">Logout</a>
+      <div class="toggle-theme" onclick="toggleTheme()">🌗</div>
+    </div>
+  </nav>
+  {% endif %}
+
+  {% block content %}{% endblock %}
+
+  <script>
+    function toggleTheme(){
+      document.body.dataset.theme = document.body.dataset.theme === 'dark' ? 'light' : 'dark';
+    }
+  </script>
+</body>
+</html>

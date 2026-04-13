@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="hero">
+  <h1>Welcome, {{ session['user']['username'] }} 👋</h1>
+  <p>Find books that match your mood.</p>
+</section>
+
+<div class="search-bar">
+  <form action="{{ url_for('search_books') }}" method="GET">
+    <input type="text" name="q" placeholder="Search by title or author..." required>
+  </form>
+</div>
+
+{% for genre, books in books_by_genre.items() %}
+<section class="genre-section">
+  <h2>{{ genre }}</h2>
+  <div class="book-grid">
+    {% for book in books %}
+   <div class="book-card" onclick="window.location.href='{{ url_for('book_detail', book_id=book['_id']) }}'">
+      <img src="{{ book['cover_url'] }}" alt="{{ book['title'] }}">
+      <div class="book-info">
+        <h3>{{ book['title'] }}</h3>
+        <p>{{ book['author'] }}</p>
+        <p class="rating">⭐ {{ book['rating'] }}/5</p>
+
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endfor %}
+{% endblock %}
+
