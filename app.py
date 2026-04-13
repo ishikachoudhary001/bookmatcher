@@ -9,14 +9,13 @@ import certifi
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "fallback_secret")
 
-
 mongo_uri = os.environ.get("MONGO_URI")
 
 client = MongoClient(
     mongo_uri,
     tls=True,
     tlsCAFile=certifi.where(),
-    serverSelectionTimeoutMS=5000
+    tlsAllowInvalidCertificates=True   # 🔥 IMPORTANT FIX
 )
 
 db = client["bookmatcher_db"]

@@ -1,8 +1,8 @@
-Flask==2.3.2
-pymongo==4.4.0
-requests==2.31.0
-dnspython>=2.4.0
-python-dotenv==1.0.0
-Werkzeug==3.0.0
+Flask
+pymongo
 gunicorn
+python-dotenv
+werkzeug
+requests
+dnspython
 certifi
