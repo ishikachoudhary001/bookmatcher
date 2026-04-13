@@ -4,21 +4,19 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from bson.objectid import ObjectId
 from datetime import datetime
 import os
+import certifi
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "fallback_secret")
 
-# MongoDB Connection
+
 mongo_uri = os.environ.get("MONGO_URI")
 
-if not mongo_uri:
-    raise Exception("MONGO_URI not found!")
-
-client = MongoClient(mongo_uri)
-
-db = client["bookmatcher_db"]
-users = db["users"]
-books = db["books"]
+client = MongoClient(
+    mongo_uri,
+    tls=True,
+    tlsCAFile=certifi.where()
+)
 
 # Make datetime available in templates
 @app.context_processor
