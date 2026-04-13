@@ -9,14 +9,20 @@ import certifi
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "fallback_secret")
 
+
 mongo_uri = os.environ.get("MONGO_URI")
+
+if not mongo_uri:
+    raise Exception("MONGO_URI not found")
 
 client = MongoClient(
     mongo_uri,
     tls=True,
     tlsCAFile=certifi.where(),
-    tlsAllowInvalidCertificates=True   # 🔥 IMPORTANT FIX
+    serverSelectionTimeoutMS=3000,
+    connectTimeoutMS=3000
 )
+
 
 db = client["bookmatcher_db"]
 users = db["users"]
@@ -37,28 +43,70 @@ def home():
 # Signup
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
-    if request.method == 'POST':
-        username = request.form['username']
-        email = request.form['email']
-        password = generate_password_hash(request.form['password'])
-        if users.find_one({'email': email}):
-            return render_template('signup.html', error="Email already exists!")
-        users.insert_one({'username': username, 'email': email, 'password': password})
-        return redirect(url_for('login'))
-    return render_template('signup.html')
+    try:
+        if request.method == 'POST':
+            print("🔥 Signup started")
+
+            username = request.form.get('username')
+            email = request.form.get('email')
+            password = request.form.get('password')
+
+            if not username or not email or not password:
+                return "Missing fields!"
+
+            hashed_password = generate_password_hash(password)
+
+            print("🔥 Checking existing user")
+            existing_user = users.find_one({'email': email})
+
+            if existing_user:
+                return render_template('signup.html', error="Email already exists!")
+
+            print("🔥 Inserting user")
+            result = users.insert_one({
+                'username': username,
+                'email': email,
+                'password': hashed_password
+            })
+
+            print("✅ Inserted ID:", result.inserted_id)
+
+            return redirect(url_for('login'))
+
+        return render_template('signup.html')
+
+    except Exception as e:
+        print("❌ Signup Error:", e)
+        return f"Signup Error: {str(e)}"
 
 # Login
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
-        user = users.find_one({'email': email})
-        if user and check_password_hash(user['password'], password):
-            session['user'] = {'_id': str(user['_id']), 'username': user['username']}
-            return redirect(url_for('dashboard'))
-        return render_template('login.html', error="Invalid credentials.")
-    return render_template('login.html')
+    try:
+        if request.method == 'POST':
+            print("🔥 Login started")
+
+            email = request.form.get('email')
+            password = request.form.get('password')
+
+            print("🔥 Finding user")
+            user = users.find_one({'email': email})
+
+            if user and check_password_hash(user['password'], password):
+                print("✅ Login success")
+                session['user'] = {
+                    '_id': str(user['_id']),
+                    'username': user['username']
+                }
+                return redirect(url_for('dashboard'))
+
+            return render_template('login.html', error="Invalid credentials.")
+
+        return render_template('login.html')
+
+    except Exception as e:
+        print("❌ Login Error:", e)
+        return f"Login Error: {str(e)}"
 
 # Logout
 @app.route('/logout')
