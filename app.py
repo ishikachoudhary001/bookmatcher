@@ -9,7 +9,13 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "fallback_secret")
 
 # MongoDB Connection
-client = MongoClient(os.environ.get("mongodb+srv://choudharyishika833_db_user:JIvg7ozmtKjHjjGh@bookmatcher.nagpfr9.mongodb.net/?appName=bookmatcher"))
+mongo_uri = os.environ.get("MONGO_URI")
+
+if not mongo_uri:
+    raise Exception("MONGO_URI not found!")
+
+client = MongoClient(mongo_uri)
+
 db = client["bookmatcher_db"]
 users = db["users"]
 books = db["books"]
